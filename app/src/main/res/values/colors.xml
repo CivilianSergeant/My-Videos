@@ -6,4 +6,5 @@
     <color name="windowBackground">#FFF3E0</color>
     <color name="navigationBarColor">#333333</color>
     <color name="colorAccent">#00ffff</color>
+    <color name="grayColor">#acacac</color>
 </resources>

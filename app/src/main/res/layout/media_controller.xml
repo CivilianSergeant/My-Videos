@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentStart="true"
+
+    >
+
+    <RelativeLayout
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="328dp"
+        android:alpha="0.5"
+        android:background="#000" />
+
+    <ImageButton
+        android:id="@+id/playBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/overlay"
+
+        android:layout_marginLeft="15dp"
+        android:background="@android:color/transparent"
+        app:srcCompat="@drawable/ic_play_circle_filled_white_24dp" />
+
+    <ImageButton
+        android:id="@+id/pauseBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignStart="@+id/playBtn"
+        android:layout_alignTop="@+id/overlay"
+        android:layout_marginLeft="15dp"
+        android:background="@android:color/transparent"
+        android:visibility="invisible"
+        app:srcCompat="@drawable/ic_pause_circle_filled_white_24dp" />
+
+    <view
+        android:id="@+id/toggleBtn"
+        class="com.nexdecade.demoapp.component.ToggleBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/overlay"
+        android:layout_marginEnd="57dp"
+        android:layout_marginRight="15dp"
+        android:alpha="0.5"
+        android:background="@android:color/transparent"
+        app:srcCompat="@drawable/ic_high_quality_white_24dp" />
+
+    <SeekBar
+        android:id="@+id/volBar"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+
+        android:layout_above="@+id/toggleBtn"
+        android:layout_alignEnd="@+id/toggleBtn"
+
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="32dp"
+        android:layout_marginTop="274dp"
+        android:alpha="0.9"
+        android:max="100"
+        android:progress="20"
+        android:progressDrawable="@drawable/progress_background_tint"
+        android:rotation="270"
+        android:thumb="@drawable/thumb"
+        android:thumbOffset="2dp"
+        android:translationX="12dp"
+        android:translationY="0dp"
+        android:visibility="visible" />
+
+    <ImageButton
+        android:id="@+id/soundControl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignTop="@+id/overlay"
+        android:layout_marginEnd="10dp"
+        android:layout_toStartOf="@+id/toggleBtn"
+        android:background="@android:color/transparent"
+        app:srcCompat="@drawable/ic_volume_up_white_24dp" />
+</RelativeLayout>
+

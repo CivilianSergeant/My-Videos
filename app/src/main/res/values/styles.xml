@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="AppTheme.Base">
+
+    </style>
+    <style name="AppTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:windowBackground">@color/windowBackground</item>
+        <item name="android:navigationBarColor">@color/navigationBarColor</item>
+
+    </style>
+    <style name="AppTheme.Player" parent="Theme.AppCompat.NoActionBar">
+
+    </style>
+    <style name="CustomToolBar" parent="ThemeOverlay.AppCompat.Dark">
+
+    </style>
+</resources>

@@ -25,7 +25,7 @@ public class HomeActivity extends AppCompatActivity {
         imageView = (ImageView)findViewById(R.id.videoThumbnail);
         setSupportActionBar(toolbar);
 
-        
+
 
     }
 

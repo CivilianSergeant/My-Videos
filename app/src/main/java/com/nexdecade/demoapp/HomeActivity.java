@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -51,13 +52,14 @@ public class HomeActivity extends AppCompatActivity {
 
                 for (int i = 0; i < files.length; i++)
                 {
-                    if(files[i].getName().contains("IMG")){
+                    if(files[i].getName().contains("VID")){
 
                         myArrAdapter.add(files[i].getName());
                     }
 
                 }
                 videoList.setAdapter(myArrAdapter);
+
 
             }
         });

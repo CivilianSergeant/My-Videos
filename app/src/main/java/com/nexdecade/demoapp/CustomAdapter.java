@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -83,7 +84,7 @@ public class CustomAdapter implements ListAdapter {
             String path = Environment.getExternalStorageDirectory() + "/dcim/camera/" + itemTxt;
             final File imgFile = new File(path);
 
-            if(newView == null) {
+            //if(newView == null) {
                 newView = inflater.inflate(R.layout.list_item, parent, false);
                 viewHolder = new ViewHolder();
 
@@ -92,40 +93,19 @@ public class CustomAdapter implements ListAdapter {
                 viewHolder.thumbnail.setTag(position);
                 newView.setTag(viewHolder);
 
-            }else{
+            /*}else{
                 viewHolder = (ViewHolder) newView.getTag();
-            }
-
+            }*/
 
             viewHolder.filename.setText(itemTxt);
 
-        
-            handler.post(new Runnable() {
+            /*handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    if (imgFile.exists()) {
-                        BitmapFactory.Options options = new BitmapFactory.Options();
-                        options.inSampleSize = 2;
-                        FileInputStream fileInputStream = null;
-                        try {
-                            fileInputStream = new FileInputStream(imgFile.getAbsolutePath());
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        } finally {
-                            if (fileInputStream != null) {
-                                Bitmap myBitmap = BitmapFactory.decodeStream(fileInputStream, null, options);
-                                viewHolder.thumbnail.setImageBitmap(myBitmap);
-                                viewHolder.thumbnail.setBackgroundColor(Color.TRANSPARENT);
-                            }
-                        }
 
-
-                    }
                 }
-            });
-
-
-
+            });*/
+            new ShowImage(imgFile,viewHolder).execute();
 
         return newView;
     }
@@ -158,6 +138,49 @@ public class CustomAdapter implements ListAdapter {
     static class ViewHolder {
         ImageView thumbnail;
         TextView filename;
+    }
 
+    public class ShowImage extends AsyncTask<String,Void,Void>{
+
+        File file;
+        ViewHolder viewHolder;
+
+        Bitmap myBitmap;
+        public ShowImage(File f, ViewHolder vh){
+            file = f;
+            viewHolder = vh;
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            if (file.exists()) {
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inSampleSize = 2;
+                FileInputStream fileInputStream = null;
+                try {
+                    fileInputStream = new FileInputStream(file.getAbsolutePath());
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (fileInputStream != null) {
+                        //myBitmap = BitmapFactory.decodeStream(fileInputStream, null, options);
+
+                        myBitmap = MediaStore.Video.Thumbnails.getThumbnail(mContext.getContentResolver(),
+                                (long)0, MediaStore.Video.Thumbnails.MICRO_KIND,null);
+                    }
+                }
+            }
+            return null;
+        }
+
+
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            viewHolder.thumbnail.setImageBitmap(myBitmap);
+            viewHolder.thumbnail.setBackgroundColor(Color.TRANSPARENT);
+        }
     }
 }

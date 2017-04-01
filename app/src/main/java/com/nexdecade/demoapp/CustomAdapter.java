@@ -1,186 +1,146 @@
 package com.nexdecade.demoapp;
 
-import android.content.Context;
-import android.database.DataSetObserver;
+import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Environment;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-
 /**
- * Created by Himel on 3/29/2017.
+ * Created by Himel on 4/1/2017.
  */
 
-public class CustomAdapter implements ListAdapter {
+public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder>{
 
-    ArrayList<String> adapter;
-    Context mContext;
-    Handler handler = new Handler();
-    public CustomAdapter(Context c){
-        mContext = c;
-        adapter = new ArrayList<>();
+    private Cursor mMediaStorageCursor;
+    private static Activity context;
+    private static ListItemListener listItemListener = null;
+
+    public interface ListItemListener{
+        void onClick(Uri uri);
     }
 
-    public void add(String s){
-        adapter.add(s);
-    }
-
-    @Override
-    public void registerDataSetObserver(DataSetObserver observer) {
-
+    public CustomAdapter(Activity c) {
+        context = c;
+        this.listItemListener = (ListItemListener) c;
     }
 
     @Override
-    public void unregisterDataSetObserver(DataSetObserver observer) {
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item,parent,false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+
+        Bitmap bitmap = getBitmapFromMediaStorage(position);
+        if(bitmap != null){
+            holder.getThumbnail().setImageBitmap(bitmap);
+        }
+
+        int titleIndex = mMediaStorageCursor.getColumnIndex(MediaStore.Files.FileColumns.TITLE);
+        holder.getFilename().setText(mMediaStorageCursor.getString(titleIndex));
+        holder.setCursor(mMediaStorageCursor);
 
     }
 
     @Override
-    public int getCount() {
-        return adapter.size();
+    public int getItemCount() {
+        return (mMediaStorageCursor == null)? 0 : mMediaStorageCursor.getCount();
     }
 
-    @Override
-    public Object getItem(int position) {
-        return adapter.get(position);
-    }
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
+        private ImageView thumbnail;
+        private TextView filename;
+        private Cursor cursor;
 
-    @Override
-    public boolean hasStableIds() {
-        return false;
-    }
+        public ViewHolder(View itemView) {
+            super(itemView);
+            thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
+            filename  = (TextView)  itemView.findViewById(R.id.filename);
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+            itemView.setOnClickListener(this);
+        }
 
-            View newView = convertView;
-            final ViewHolder viewHolder;
+        public ImageView getThumbnail(){
+            return thumbnail;
+        }
 
-            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            String itemTxt = adapter.get(position).toString();
-            String path = Environment.getExternalStorageDirectory() + "/dcim/camera/" + itemTxt;
-            final File imgFile = new File(path);
+        public TextView getFilename(){
+            return filename;
+        }
 
-            //if(newView == null) {
-                newView = inflater.inflate(R.layout.list_item, parent, false);
-                viewHolder = new ViewHolder();
 
-                viewHolder.filename  = (TextView) newView.findViewById(R.id.filename);
-                viewHolder.thumbnail = (ImageView) newView.findViewById(R.id.thumbnail);
-                viewHolder.thumbnail.setTag(position);
-                newView.setTag(viewHolder);
+        public Cursor getCursor() {
+            return cursor;
+        }
 
-            /*}else{
-                viewHolder = (ViewHolder) newView.getTag();
-            }*/
-
-            viewHolder.filename.setText(itemTxt);
-
-            /*handler.post(new Runnable() {
-                @Override
-                public void run() {
-
-                }
-            });*/
-            new ShowImage(imgFile,viewHolder).execute();
-
-        return newView;
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        return position;
-    }
-
-    @Override
-    public int getViewTypeCount() {
-        return 1;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return false;
-    }
-
-    @Override
-    public boolean areAllItemsEnabled() {
-        return false;
-    }
-
-    @Override
-    public boolean isEnabled(int position) {
-        return false;
-    }
-
-    static class ViewHolder {
-        ImageView thumbnail;
-        TextView filename;
-    }
-
-    public class ShowImage extends AsyncTask<String,Void,Void>{
-
-        File file;
-        ViewHolder viewHolder;
-
-        Bitmap myBitmap;
-        public ShowImage(File f, ViewHolder vh){
-            file = f;
-            viewHolder = vh;
+        public void setCursor(Cursor cursor) {
+            this.cursor = cursor;
         }
 
         @Override
-        protected Void doInBackground(String... params) {
-
-            if (file.exists()) {
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inSampleSize = 2;
-                FileInputStream fileInputStream = null;
-                try {
-                    fileInputStream = new FileInputStream(file.getAbsolutePath());
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } finally {
-                    if (fileInputStream != null) {
-                        //myBitmap = BitmapFactory.decodeStream(fileInputStream, null, options);
-
-                        myBitmap = MediaStore.Video.Thumbnails.getThumbnail(mContext.getContentResolver(),
-                                (long)0, MediaStore.Video.Thumbnails.MICRO_KIND,null);
-                    }
-                }
+        public void onClick(View v) {
+            cursor.moveToPosition(getAdapterPosition());
+            Uri  uri = Uri.parse(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DATA)));
+            if(listItemListener != null){
+                listItemListener.onClick(uri);
             }
+        }
+    }
+
+    public Cursor swapCursor(Cursor c){
+        if (mMediaStorageCursor == c) {
             return null;
         }
+        Cursor oldCursor = mMediaStorageCursor;
+        mMediaStorageCursor = c;
+        notifyDataSetChanged();
+        return oldCursor;
+    }
 
-
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            viewHolder.thumbnail.setImageBitmap(myBitmap);
-            viewHolder.thumbnail.setBackgroundColor(Color.TRANSPARENT);
+    public void changeCursor(Cursor cursor) {
+        Cursor old = swapCursor(cursor);
+        if (old != null) {
+            old.close();
         }
     }
+
+    private Bitmap getBitmapFromMediaStorage(int position){
+        int idIndex = mMediaStorageCursor.getColumnIndex(MediaStore.Files.FileColumns._ID);
+        int mediaTypeIndex = mMediaStorageCursor.getColumnIndex(MediaStore.Files.FileColumns.MEDIA_TYPE);
+
+
+        /*Log.d("HIMEL","Media Cursor Long: "+mMediaStorageCursor.getLong(idIndex));*/
+
+        mMediaStorageCursor.moveToPosition(position);
+        if(mMediaStorageCursor != null) {
+            switch (mMediaStorageCursor.getInt(mediaTypeIndex)) {
+                case MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE:
+                    return MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(),
+                            mMediaStorageCursor.getLong(idIndex), MediaStore.Images.Thumbnails.MICRO_KIND, null);
+
+
+                case MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO:
+                    return MediaStore.Video.Thumbnails.getThumbnail(context.getContentResolver(),
+                            mMediaStorageCursor.getLong(idIndex), MediaStore.Video.Thumbnails.MICRO_KIND, null);
+
+                default:
+                    return null;
+            }
+        }
+        return null;
+    }
+
+
 }

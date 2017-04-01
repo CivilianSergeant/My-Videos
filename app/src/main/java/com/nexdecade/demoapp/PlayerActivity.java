@@ -1,6 +1,7 @@
 package com.nexdecade.demoapp;
 
 
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ import com.nexdecade.demoapp.component.ToggleBtn;
 
 public class PlayerActivity extends AppCompatActivity {
 
+    private static int REQUEST_CODE = 0;
     private VideoView videoView;
     /*private String URI = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";*/
     private String LOW_URI = "blob:https://vimeo.com/07c0687b-ed66-45c4-a80a-76e99ccb77f9"; // "http://edge2.digijadoo.net/hls/telstra_low/index.m3u8";
@@ -41,12 +43,16 @@ public class PlayerActivity extends AppCompatActivity {
     private Handler handler;
 
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
+        Intent intent = getIntent();
+
 
         videoView    = (VideoView) findViewById(R.id.videoView);
 
@@ -56,11 +62,14 @@ public class PlayerActivity extends AppCompatActivity {
         progressBar.getIndeterminateDrawable().setColorFilter(0xFF00FFFF, android.graphics.PorterDuff.Mode.MULTIPLY);
         handler = new Handler();
 
+        if(intent != null){
+            videoView.setVideoURI(intent.getData());
+        }else{
+            videoView.setVideoURI(Uri.parse(LOW_URI));
+        }
 
-        videoView.setVideoURI(Uri.parse(LOW_URI));
 
         mediaController = new CustomMediaController(this);
-
         mediaController.setAnchorView(playerControl);
         mediaController.setMediaPlayer(videoView);
         mediaController.setToggleHQButtonState(false);
@@ -78,9 +87,8 @@ public class PlayerActivity extends AppCompatActivity {
                             mediaController.setChecked(true);
                         }
                     });
-
-
                     Log.d("HIMEL",HI_URI);
+
                 }else{
                     handler.post(new Runnable() {
                         @Override
@@ -89,7 +97,6 @@ public class PlayerActivity extends AppCompatActivity {
                             mediaController.setChecked(false);
                         }
                     });
-
                     Log.d("HIMEL",LOW_URI);
 
                 }
@@ -176,6 +183,22 @@ public class PlayerActivity extends AppCompatActivity {
 
         }
 
+
+    }
+
+    @Override
+    public void startActivityForResult(Intent intent, int requestCode) {
+        super.startActivityForResult(intent, requestCode);
+        REQUEST_CODE = requestCode;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(videoView != null && videoView.isPlaying()){
+            videoView.pause();
+        }
+        finishActivity(REQUEST_CODE);
+        super.onBackPressed();
 
     }
 }

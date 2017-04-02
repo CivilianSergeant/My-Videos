@@ -93,11 +93,15 @@ public class CustomMediaController extends MediaController {
         toggleBtn = (ToggleBtn) v.findViewById(R.id.toggleBtn);
         if(toggleBtn != null){
             toggleBtn.setOnClickListener(toggleBtnListener);
+            toggleBtn.setVisibility(INVISIBLE);
         }
 
         mSoundButton = (ImageButton)v.findViewById(R.id.soundControl);
         if(mSoundButton != null){
             mSoundButton.setOnClickListener(mSoundButtonListener);
+            if(toggleBtn.getVisibility() == View.INVISIBLE){
+                mSoundButton.setTranslationX((float)60.0);
+            }
         }
 
 
@@ -108,6 +112,12 @@ public class CustomMediaController extends MediaController {
         volControl = (SeekBar)v.findViewById(R.id.volBar);
         volControl.setVisibility(INVISIBLE);
         //volControl.getThumb().setColorFilter(0xff00ffff,PorterDuff.Mode.MULTIPLY);
+
+        if(toggleBtn.getVisibility() == View.INVISIBLE){
+            volControl.setTranslationX(115);
+
+        }
+
         volControl.setMax(maxVolume);
         volControl.setProgress(curVolume);
         volControl.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {

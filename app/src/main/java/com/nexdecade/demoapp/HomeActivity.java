@@ -70,7 +70,8 @@ public class HomeActivity extends AppCompatActivity implements LoaderManager.Loa
                 MediaStore.Files.FileColumns.TITLE,
                 MediaStore.Files.FileColumns.DATE_ADDED,
                 MediaStore.Files.FileColumns.MEDIA_TYPE,
-                MediaStore.Files.FileColumns.DATA
+                MediaStore.Files.FileColumns.DATA,
+
         };
         String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
                 + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;

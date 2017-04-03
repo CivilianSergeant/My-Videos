@@ -30,16 +30,9 @@ public class PlayerActivity extends AppCompatActivity {
 
     private static int REQUEST_CODE = 0;
     private VideoView videoView;
-    /*private String URI = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";*/
-    private String LOW_URI = "blob:https://vimeo.com/07c0687b-ed66-45c4-a80a-76e99ccb77f9"; // "http://edge2.digijadoo.net/hls/telstra_low/index.m3u8";
-    private String HI_URI  = "http://edge2.digijadoo.net/hls/telstra_hi/index.m3u8";
-    private TextView bufferingTxt;
-    private ImageButton playBtn;
-    private ImageButton pauseBtn;
-    private ToggleBtn toggleBtn;
+    private String VIDEO_URI = null;
     private ProgressBar progressBar;
     private CustomMediaController mediaController;
-    private View playerControl;
     private Handler handler;
 
 
@@ -49,13 +42,11 @@ public class PlayerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
         Intent intent = getIntent();
 
 
         videoView    = (VideoView) findViewById(R.id.videoView);
-
         progressBar  = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
         progressBar.setIndeterminate(true);
@@ -65,43 +56,29 @@ public class PlayerActivity extends AppCompatActivity {
         if(intent != null){
             videoView.setVideoURI(intent.getData());
         }else{
-            videoView.setVideoURI(Uri.parse(LOW_URI));
+            videoView.setVideoURI(Uri.parse(VIDEO_URI));
         }
 
 
         mediaController = new CustomMediaController(this);
-        mediaController.setAnchorView(playerControl);
+        mediaController.setAnchorView(videoView);
         mediaController.setMediaPlayer(videoView);
-        mediaController.setToggleHQButtonState(false);
 
-        mediaController.setOnToggleHQListener(new CustomMediaController.CustomMediaControllerHQListner() {
+
+        /*mediaController.setOnToggleHQListener(new CustomMediaController.CustomMediaControllerHQListner() {
             @Override
             public void setHQUri(ToggleBtn toggleBtn) {
                 progressBar.setVisibility(View.VISIBLE);
 
-                if(!mediaController.isChecked()){
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            videoView.setVideoURI(Uri.parse(HI_URI));
+                            videoView.setVideoURI(Uri.parse(VIDEO_URI));
                             mediaController.setChecked(true);
                         }
                     });
-                    Log.d("HIMEL",HI_URI);
-
-                }else{
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            videoView.setVideoURI(Uri.parse(LOW_URI));
-                            mediaController.setChecked(false);
-                        }
-                    });
-                    Log.d("HIMEL",LOW_URI);
-
-                }
             }
-        });
+        });*/
 
         videoView.setMediaController(mediaController);
         progressBar.setVisibility(View.VISIBLE);
@@ -121,9 +98,6 @@ public class PlayerActivity extends AppCompatActivity {
                 } else if(what == MediaPlayer.MEDIA_INFO_BUFFERING_END){
                     progressBar.setVisibility(View.INVISIBLE);
                 } else if(what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START){
-                    /*if(mp.isPlaying()){
-                        playerControl.setVisibility(View.INVISIBLE);
-                    }*/
                     progressBar.setVisibility(View.INVISIBLE);
                 } else {
                     progressBar.setVisibility(View.INVISIBLE);
@@ -150,7 +124,6 @@ public class PlayerActivity extends AppCompatActivity {
             public void onPrepared(MediaPlayer mp) {
                 if(mp.isPlaying()){
                     progressBar.setVisibility(View.INVISIBLE);
-                    /*playerControl.setVisibility(View.INVISIBLE);*/
                     Log.d("HIMEL","Playing");
                 }
             }
@@ -159,14 +132,9 @@ public class PlayerActivity extends AppCompatActivity {
         videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-
                     Log.d("HIMEL","ON COMPLETE PLAYING");
-
             }
         });
-
-
-
     }
 
     @Override
@@ -175,11 +143,12 @@ public class PlayerActivity extends AppCompatActivity {
         if (hasFocus) {
             getWindow().getDecorView().setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    //| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    );
 
         }
 
@@ -199,6 +168,16 @@ public class PlayerActivity extends AppCompatActivity {
         }
         finishActivity(REQUEST_CODE);
         super.onBackPressed();
+    }
 
+    @Override
+    protected void onPause() {
+        mediaController.removeAllViews();
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }
